@@ -5,7 +5,10 @@ import { Wallet } from '../database/entites/Wallet';
 @Injectable()
 export class WalletService {
   async create(userId: string, createWalletDto: CreateWalletDto) {
-    return await Wallet.create({ balance: createWalletDto.balance, userId });
+    return await Wallet.create({
+      balance: createWalletDto.balance,
+      ownerId: userId,
+    });
   }
 
   findAll() {

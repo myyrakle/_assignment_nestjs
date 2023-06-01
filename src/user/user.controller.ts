@@ -33,7 +33,7 @@ export class UserController {
 
   @Roles(['USER'])
   @TypedRoute.Get('/my-info')
-  async getMyInfo(@Req() req: Request): Promise<AuthUser> {
+  async getMyInfo(): Promise<AuthUser> {
     return this.authUser;
   }
 }
