@@ -1,4 +1,12 @@
-import { Model, Table, Column, DataType, Comment } from 'sequelize-typescript';
+import { literal } from 'sequelize';
+import {
+  Model,
+  Table,
+  Column,
+  DataType,
+  Comment,
+  PrimaryKey,
+} from 'sequelize-typescript';
 
 @Table({
   tableName: 'user',
@@ -17,8 +25,9 @@ export class User extends Model {
     field: 'id',
     type: DataType.UUID,
     allowNull: false,
+    defaultValue: literal('gen_random_uuid()'),
   })
-  id!: string;
+  id?: string;
 
   @Comment(`이메일`)
   @Column({
@@ -35,4 +44,12 @@ export class User extends Model {
     allowNull: false,
   })
   password!: string;
+
+  @Comment(`소금`)
+  @Column({
+    field: 'password_salt',
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  passwordSalt!: string;
 }

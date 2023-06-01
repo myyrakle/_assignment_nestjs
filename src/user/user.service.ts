@@ -1,16 +1,27 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Sequelize } from 'sequelize-typescript';
+import { generateRandomSalt } from '../utils/salt';
+import { passwordHashing } from '../utils/hashing';
+import { User } from '../database/entites/User';
 
 @Injectable()
 export class UserService {
   constructor(
     @Inject('SEQUELIZE')
-    private sequelize: typeof Sequelize,
+    private sequelize: Sequelize,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+    const { email, password } = createUserDto;
+    const salt = generateRandomSalt();
+    const hashedPassword = passwordHashing(password + salt);
+
+    await User.create({
+      email,
+      password: hashedPassword,
+      passwordSalt: salt,
+    });
   }
 
   findAll() {

@@ -1,3 +1,4 @@
+import { literal } from 'sequelize';
 import { Model, Table, Column, DataType, Comment } from 'sequelize-typescript';
 
 @Table({
@@ -18,13 +19,14 @@ export class WalletBalanceChange extends Model {
     type: DataType.UUID,
     allowNull: false,
   })
-  id!: string;
+  id?: string;
 
   @Comment(``)
   @Column({
     field: 'wallet_id',
     type: DataType.UUID,
     allowNull: false,
+    defaultValue: literal('gen_random_uuid()'),
   })
   walletId!: string;
 
