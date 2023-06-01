@@ -20,6 +20,8 @@ import { UseAuth } from '../auth/auth.guard';
 import { GetBalanceDto } from './dto/get-balance-dto';
 import { WalletDto } from './dto/wallet-dto';
 import { BalanceChangeListRequestDto } from './dto/balance-change-list-request-dto';
+import { CreateBalanceChangeDto } from './dto/create-balance-change.dto';
+import { WalletBalanceChangeDto } from './dto/wallet-balance-change-dto';
 
 @UseAuth()
 @Controller('wallet')
@@ -56,6 +58,30 @@ export class WalletController {
         return {
           balance: wallet.balance,
         };
+      } else {
+        throw new ForbiddenException();
+      }
+    } else {
+      throw new NotFoundException();
+    }
+  }
+
+  @TypedRoute.Post('/:wallet_id/balance-change')
+  async createBalanceChange(
+    @Param('wallet_id') walletId: string,
+    @TypedBody() bodyParam: CreateBalanceChangeDto,
+  ): Promise<WalletBalanceChangeDto> {
+    const userId = this.authUser.user?.id!;
+
+    const wallet = await this.walletService.findOneByWalletId(walletId);
+
+    if (wallet !== null) {
+      if (wallet.ownerId === userId) {
+        const balanceChange = await this.walletService.createBalanceChange(
+          walletId,
+          bodyParam,
+        );
+        return balanceChange.toDto();
       } else {
         throw new ForbiddenException();
       }

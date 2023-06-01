@@ -2,6 +2,7 @@ import { literal } from 'sequelize';
 import { Model, Table, Column, DataType, Comment } from 'sequelize-typescript';
 import { WalletBalanceChangeDto } from '../../wallet/dto/wallet-balance-change-dto';
 
+export type BalanceChangeType = 'WITHDRAW' | 'DEPOSIT';
 export type BalanceChangeStatus = 'IN_PROGRESS' | 'DONE';
 
 @Table({
@@ -21,6 +22,7 @@ export class WalletBalanceChange extends Model {
     field: 'id',
     type: DataType.UUID,
     allowNull: false,
+    defaultValue: literal('gen_random_uuid()'),
   })
   id?: string;
 
@@ -39,7 +41,7 @@ export class WalletBalanceChange extends Model {
     type: DataType.STRING,
     allowNull: false,
   })
-  changeType!: string;
+  changeType!: BalanceChangeType;
 
   @Comment(``)
   @Column({

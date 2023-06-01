@@ -1,9 +1,12 @@
-import { BalanceChangeStatus } from '../../database/entites/WalletBalanceChange';
+import {
+  BalanceChangeStatus,
+  BalanceChangeType,
+} from '../../database/entites/WalletBalanceChange';
 
 export interface WalletBalanceChangeDto {
   id: string;
   walletId: string;
-  changeType: string;
+  changeType: BalanceChangeType;
   beforeBalance: string;
   afterBalance: string;
   changeAmount: string;
