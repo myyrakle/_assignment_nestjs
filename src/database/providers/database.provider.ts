@@ -1,4 +1,7 @@
 import { Sequelize } from 'sequelize-typescript';
+import { User } from '../entites/User';
+import { Wallet } from '../entites/Wallet';
+import { WalletBalanceChange } from '../entites/WalletBalanceChange';
 
 export const databaseProviders = [
   {
@@ -12,9 +15,9 @@ export const databaseProviders = [
         password: process.env.DB_PASSWORD || 'q1w2e3r4',
         database: 'postgres',
       });
-      sequelize.addModels([]);
+      sequelize.addModels([User, Wallet, WalletBalanceChange]);
 
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV != 'production') {
         await sequelize.sync();
       }
 

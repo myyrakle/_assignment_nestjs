@@ -1,5 +1,7 @@
 # test
 
+## 사용법
+
 테스트용 DB 세팅  
 (PostgreSQL, nats)
 
@@ -16,3 +18,13 @@ npm i
 npm run start:dev
 
 ```
+
+swagger 방출
+
+```
+npx nestia swagger
+```
+
+## 기타
+
+ERD: https://www.erdcloud.com/d/GrrWFZiazmL4vSoeF
