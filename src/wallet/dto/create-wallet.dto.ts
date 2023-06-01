@@ -1,1 +1,3 @@
-export class CreateWalletDto {}
+export interface CreateWalletDto {
+  balance: string;
+}

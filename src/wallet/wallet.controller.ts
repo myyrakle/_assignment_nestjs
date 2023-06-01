@@ -1,34 +1,40 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Inject,
+  UseGuards,
+} from '@nestjs/common';
 import { WalletService } from './wallet.service';
+import { TypedRoute, TypedBody } from '@nestia/core';
 import { CreateWalletDto } from './dto/create-wallet.dto';
-import { UpdateWalletDto } from './dto/update-wallet.dto';
+import { Wallet } from '../database/entites/Wallet';
+import { AuthUser } from '../auth/providers/AuthUser';
+import { Roles } from '../auth/decorators/role';
 
+@UseGuards()
 @Controller('wallet')
 export class WalletController {
-  constructor(private readonly walletService: WalletService) {}
+  constructor(
+    private readonly walletService: WalletService,
+    @Inject('AUTH_USER') private readonly authUser: AuthUser,
+  ) {}
 
-  @Post()
-  create(@Body() createWalletDto: CreateWalletDto) {
-    return this.walletService.create(createWalletDto);
+  @Roles(['USER'])
+  @TypedRoute.Post() // 이 부분
+  async create(@TypedBody() createWalletDto: CreateWalletDto): Promise<Wallet> {
+    return await this.walletService.create(
+      this.authUser.user?.id ?? '0',
+      createWalletDto,
+    );
   }
 
-  @Get()
+  @TypedRoute.Get()
   findAll() {
     return this.walletService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.walletService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateWalletDto: UpdateWalletDto) {
-    return this.walletService.update(+id, updateWalletDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.walletService.remove(+id);
   }
 }
