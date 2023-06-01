@@ -2,7 +2,7 @@ export interface CreateUserDto {
   /**
    * @format email
    */
-  email: String;
+  email: string;
 
-  password: String;
+  password: string;
 }
