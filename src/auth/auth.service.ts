@@ -53,6 +53,13 @@ export class AuthService {
 
   verifyAccessToken(accessToken: string) {
     const keyValue = this.secretKey;
-    return jwt.verify(accessToken, keyValue);
+
+    const verified = jwt.verify(accessToken, keyValue);
+
+    if (typeof verified !== 'string') {
+      return verified;
+    } else {
+      throw new Error('Invalid token');
+    }
   }
 }
