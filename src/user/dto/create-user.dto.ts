@@ -1,1 +1,8 @@
-export class CreateUserDto {}
+export interface CreateUserDto {
+  /**
+   * @format email
+   */
+  email: String;
+
+  password: String;
+}
