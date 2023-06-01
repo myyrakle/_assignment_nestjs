@@ -72,7 +72,7 @@ export class WalletService {
     }
 
     await Wallet.update(
-      { afterBalance: afterBalance.toString() },
+      { balance: afterBalance.toString() },
       { where: { id: wallet.id }, transaction },
     );
 
@@ -94,11 +94,12 @@ export class WalletService {
   async findOneByWalletId(walletId: string) {
     return await Wallet.findOne({
       where: { id: walletId },
+      lock: true,
     });
   }
 
   async findBalanceChangeById(id: string) {
-    return await WalletBalanceChange.findOne({ where: { id } });
+    return await WalletBalanceChange.findOne({ where: { id }, lock: true });
   }
 
   async findChangeListByWalletId(
