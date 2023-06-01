@@ -32,6 +32,25 @@ export class AuthService {
     return token;
   }
 
+  async findRefreshToken(token: string): Promise<RefreshToken | null> {
+    const refreshToken = await RefreshToken.findOne({
+      where: {
+        token,
+      },
+    });
+
+    if (refreshToken !== null) {
+      if (refreshToken.expiredAt.getTime() > Date.now()) {
+        return refreshToken;
+      } else {
+        await refreshToken.destroy();
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
   verifyAccessToken(accessToken: string) {
     const keyValue = this.secretKey;
     return jwt.verify(accessToken, keyValue);

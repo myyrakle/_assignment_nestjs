@@ -31,4 +31,12 @@ export class UserService {
       },
     });
   }
+
+  async findOneById(userId: string): Promise<User | null> {
+    return await User.findOne({
+      where: {
+        id: userId,
+      },
+    });
+  }
 }
