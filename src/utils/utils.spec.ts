@@ -1,3 +1,4 @@
+import { passwordHashing } from './hashing';
 import { generateRandomSalt } from './salt';
 
 describe('random', () => {
@@ -9,5 +10,20 @@ describe('random', () => {
 
     const otherSalt = generateRandomSalt();
     expect(salt).not.toBe(otherSalt);
+  });
+});
+
+describe('hashing', () => {
+  it('hashing test', () => {
+    const originalPassword = 'q1w2e3r4';
+    const salt = generateRandomSalt();
+
+    const hashedPassword = passwordHashing(originalPassword + salt);
+
+    expect(originalPassword).not.toBe(hashedPassword);
+
+    const otherSalt = generateRandomSalt();
+    const otherHashedPassword = passwordHashing(originalPassword + otherSalt);
+    expect(hashedPassword).not.toBe(otherHashedPassword);
   });
 });
