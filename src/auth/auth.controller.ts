@@ -6,6 +6,8 @@ import { LoginRequestDto } from './dto/LoginRequestDto';
 import { UserService } from '../user/user.service';
 import { passwordHashing } from '../utils/hashing';
 import { RefreshRequestDto } from './dto/RefreshRequestDto';
+import { LogoutResponseDto } from './dto/LogoutResponseDto';
+import { LogoutRequestDto } from './dto/LogoutRequestDto';
 
 @Controller('auth')
 export class AuthController {
@@ -76,6 +78,21 @@ export class AuthController {
       return {
         success: false,
       };
+    }
+  }
+
+  @TypedRoute.Post('logout')
+  async logout(
+    @TypedBody() body: LogoutRequestDto,
+  ): Promise<LogoutResponseDto> {
+    const refreshToken = await this.authService.findRefreshToken(
+      body.refreshToken,
+    );
+
+    if (refreshToken !== null) {
+      return {};
+    } else {
+      return {};
     }
   }
 }
