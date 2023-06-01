@@ -11,6 +11,12 @@ export class WalletService {
     });
   }
 
+  async findOneByWalletId(walletId: string) {
+    return await Wallet.findOne({
+      where: { id: walletId },
+    });
+  }
+
   findAll() {
     return `This action returns all wallet`;
   }
