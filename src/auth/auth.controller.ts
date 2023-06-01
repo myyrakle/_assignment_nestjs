@@ -1,7 +1,46 @@
 import { Controller } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { TypedRoute, TypedBody } from '@nestia/core';
+import { LoginResponseDto } from './dto/LoginResponseDto';
+import { LoginRequestDto } from './dto/LoginRequestDto';
+import { UserService } from '../user/user.service';
+import { passwordHashing } from '../utils/hashing';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UserService,
+  ) {}
+
+  @TypedRoute.Post('login')
+  async login(@TypedBody() body: LoginRequestDto): Promise<LoginResponseDto> {
+    const user = await this.userService.findOneByEmail(body.email);
+
+    if (user !== null) {
+      let inputPassword = passwordHashing(body.password + user.passwordSalt);
+
+      console.log(inputPassword, user.password);
+      if (inputPassword === user.password) {
+        const accessToken = this.authService.generateAccessToken({
+          userId: user.id,
+        });
+        const refreshToken = await this.authService.makeRefreshToken(user.id!);
+
+        return {
+          success: true,
+          accessToken,
+          refreshToken,
+        };
+      } else {
+        return {
+          success: false,
+        };
+      }
+    } else {
+      return {
+        success: false,
+      };
+    }
+  }
 }
