@@ -12,13 +12,14 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { WalletService } from './wallet.service';
-import { TypedRoute, TypedBody } from '@nestia/core';
+import { TypedRoute, TypedBody, TypedQuery } from '@nestia/core';
 import { CreateWalletDto } from './dto/create-wallet.dto';
-import { Wallet } from '../database/entites/Wallet';
 import { AuthUser } from '../auth/providers/AuthUser';
 import { Roles } from '../auth/decorators/role';
 import { UseAuth } from '../auth/auth.guard';
 import { GetBalanceDto } from './dto/get-balance-dto';
+import { WalletDto } from './dto/wallet-dto';
+import { BalanceChangeListRequestDto } from './dto/balance-change-list-request-dto';
 
 @UseAuth()
 @Controller('wallet')
@@ -30,16 +31,19 @@ export class WalletController {
 
   // 지갑 생성 엔드포인트
   @Roles(['USER'])
-  @Post() // no problem
-  async create(@TypedBody() createWalletDto: CreateWalletDto): Promise<Wallet> {
+  @TypedRoute.Post()
+  async create(
+    @TypedBody() createWalletDto: CreateWalletDto,
+  ): Promise<WalletDto> {
     let userId = this.authUser.user?.id!;
 
-    return await this.walletService.create(userId, createWalletDto);
+    let wallet = await this.walletService.create(userId, createWalletDto);
+    return wallet.toDto();
   }
 
   // 지갑 잔액 조회
   @Roles(['USER'])
-  @Get('/:wallet_id/balance')
+  @TypedRoute.Get('/:wallet_id/balance')
   async getBalance(
     @Param('wallet_id') walletId: string,
   ): Promise<GetBalanceDto> {
@@ -60,8 +64,19 @@ export class WalletController {
     }
   }
 
-  @TypedRoute.Get()
-  findAll() {
-    return this.walletService.findAll();
+  @TypedRoute.Get('/:wallet_id/balance-change')
+  async getBalanceChangeList(
+    @Param('wallet_id') walletId: string,
+    @TypedQuery() queryParam: BalanceChangeListRequestDto,
+  ) {
+    const { rows, count } = await this.walletService.findChangeListByWalletId(
+      walletId,
+      queryParam,
+    );
+
+    return {
+      rows: rows.map((row) => row.toDto()),
+      count,
+    };
   }
 }

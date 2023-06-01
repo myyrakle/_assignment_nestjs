@@ -1,5 +1,6 @@
 import { literal } from 'sequelize';
 import { Model, Table, Column, DataType, Comment } from 'sequelize-typescript';
+import { WalletDto } from '../../wallet/dto/wallet-dto';
 
 @Table({
   tableName: 'wallet',
@@ -37,4 +38,12 @@ export class Wallet extends Model {
     allowNull: false,
   })
   balance!: string;
+
+  toDto(): WalletDto {
+    return {
+      id: this.id!,
+      ownerId: this.ownerId,
+      balance: this.balance,
+    };
+  }
 }

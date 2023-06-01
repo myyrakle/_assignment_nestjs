@@ -1,5 +1,8 @@
 import { literal } from 'sequelize';
 import { Model, Table, Column, DataType, Comment } from 'sequelize-typescript';
+import { WalletBalanceChangeDto } from '../../wallet/dto/wallet-balance-change-dto';
+
+export type BalanceChangeStatus = 'IN_PROGRESS' | 'DONE';
 
 @Table({
   tableName: 'wallet_balance_change',
@@ -92,5 +95,20 @@ export class WalletBalanceChange extends Model {
     type: DataType.STRING,
     allowNull: false,
   })
-  status!: string;
+  status!: BalanceChangeStatus;
+
+  toDto(): WalletBalanceChangeDto {
+    return {
+      id: this.id!,
+      walletId: this.walletId!,
+      changeType: this.changeType!,
+      beforeBalance: this.beforeBalance!,
+      afterBalance: this.afterBalance!,
+      changeAmount: this.changeAmount!,
+      transactionHash: this.transactionHash!,
+      withdrawAccount: this.withdrawAccount,
+      depositAccount: this.depositAccount,
+      status: this.status!,
+    };
+  }
 }

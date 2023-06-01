@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { CreateWalletDto } from './dto/create-wallet.dto';
 import { Wallet } from '../database/entites/Wallet';
+import { BalanceChangeListRequestDto } from './dto/balance-change-list-request-dto';
+import { makePaginationOffset } from '../utils/offset';
+import { WalletBalanceChange } from '../database/entites/WalletBalanceChange';
 
 @Injectable()
 export class WalletService {
@@ -15,6 +18,30 @@ export class WalletService {
     return await Wallet.findOne({
       where: { id: walletId },
     });
+  }
+
+  async findChangeListByWalletId(
+    walletId: string,
+    queryParam: BalanceChangeListRequestDto,
+  ) {
+    const offset = makePaginationOffset(queryParam.page, queryParam.limit);
+
+    const filter: any = {};
+
+    if (queryParam.status) {
+      filter.status = queryParam.status;
+    }
+
+    const { rows, count } = await WalletBalanceChange.findAndCountAll({
+      where: { walletId, ...filter },
+      limit: queryParam.limit,
+      offset,
+    });
+
+    return {
+      rows,
+      count,
+    };
   }
 
   findAll() {
