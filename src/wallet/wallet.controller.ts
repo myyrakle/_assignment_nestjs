@@ -36,6 +36,9 @@ export class WalletController {
   ) {}
 
   // 1. 지갑 생성 엔드포인트
+  /**
+   * @tag wallet
+   */
   @Roles(['USER'])
   @TypedRoute.Post()
   async create(
@@ -48,6 +51,9 @@ export class WalletController {
   }
 
   // 4. 지갑(잔액) 조회 엔드포인트
+  /**
+   * @tag wallet
+   */
   @Roles(['USER'])
   @TypedRoute.Get('/:wallet_id/balance')
   async getBalance(
@@ -71,6 +77,9 @@ export class WalletController {
   }
 
   // 2. 입출금 엔드포인트
+  /**
+   * @tag wallet
+   */
   @TypedRoute.Post('/:wallet_id/balance-change')
   async createBalanceChange(
     @Param('wallet_id') walletId: string,
@@ -96,6 +105,9 @@ export class WalletController {
   }
 
   // 3. 거래(입출금) 처리 엔드포인트
+  /**
+   * @tag wallet
+   */
   @Roles(['USER'])
   @TypedRoute.Post('/:wallet_id/balance-change/process')
   async processBalanceChange(
@@ -141,6 +153,9 @@ export class WalletController {
   }
 
   // 5. 거래(입출금) 내역 리스트 조회 엔드포인트
+  /**
+   * @tag wallet
+   */
   @TypedRoute.Get('/:wallet_id/balance-change')
   async getBalanceChangeList(
     @Param('wallet_id') walletId: string,

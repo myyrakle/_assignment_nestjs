@@ -26,11 +26,21 @@ export class UserController {
     @Inject('AUTH_USER') private readonly authUser: AuthUser,
   ) {}
 
+  /**
+   * signup api
+   *
+   * @tag user
+   */
   @TypedRoute.Post('/signup')
   async create(@TypedBody() createUserDto: CreateUserDto) {
     return await this.userService.create(createUserDto);
   }
 
+  /**
+   * get my info api
+   *
+   * @tag user
+   */
   @Roles(['USER'])
   @TypedRoute.Get('/my-info')
   async getMyInfo(): Promise<AuthUser> {

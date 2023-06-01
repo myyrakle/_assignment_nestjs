@@ -16,6 +16,11 @@ export class AuthController {
     private readonly userService: UserService,
   ) {}
 
+  /**
+   * login api
+   *
+   * @tag auth
+   */
   @TypedRoute.Post('login')
   async login(@TypedBody() body: LoginRequestDto): Promise<LoginResponseDto> {
     const user = await this.userService.findOneByEmail(body.email);
@@ -47,6 +52,11 @@ export class AuthController {
     }
   }
 
+  /**
+   * refresh api
+   *
+   * @tag auth
+   */
   @TypedRoute.Post('refresh')
   async refresh(
     @TypedBody() body: RefreshRequestDto,
@@ -81,6 +91,11 @@ export class AuthController {
     }
   }
 
+  /**
+   * logout api
+   *
+   * @tag auth
+   */
   @TypedRoute.Post('logout')
   async logout(
     @TypedBody() body: LogoutRequestDto,

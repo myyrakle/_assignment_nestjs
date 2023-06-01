@@ -1,5 +1,11 @@
 # test
 
+## 구성
+
+인증: JWT (accessToken + RefreshToken)
+데이터베이스: PostgreSQL
+validator&apidoc: nestia & typia
+
 ## 사용법
 
 테스트용 DB 세팅  
