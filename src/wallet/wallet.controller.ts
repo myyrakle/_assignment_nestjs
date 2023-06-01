@@ -22,6 +22,9 @@ import { WalletDto } from './dto/wallet-dto';
 import { BalanceChangeListRequestDto } from './dto/balance-change-list-request-dto';
 import { CreateBalanceChangeDto } from './dto/create-balance-change.dto';
 import { WalletBalanceChangeDto } from './dto/wallet-balance-change-dto';
+import { ProcessBalanceChangeRequestDto } from './dto/process-balance-change-request.dto';
+import { Sequelize } from 'sequelize-typescript';
+import { ProcessBalanceChangeResponseDto } from './dto/process-balance-change-response.dto';
 
 @UseAuth()
 @Controller('wallet')
@@ -29,6 +32,7 @@ export class WalletController {
   constructor(
     private readonly walletService: WalletService,
     @Inject('AUTH_USER') private readonly authUser: AuthUser,
+    @Inject('SEQUELIZE') private readonly sequelize: Sequelize,
   ) {}
 
   // 지갑 생성 엔드포인트
@@ -82,6 +86,49 @@ export class WalletController {
           bodyParam,
         );
         return balanceChange.toDto();
+      } else {
+        throw new ForbiddenException();
+      }
+    } else {
+      throw new NotFoundException();
+    }
+  }
+
+  @TypedRoute.Post('/:wallet_id/balance-change/process')
+  async processBalanceChange(
+    @Param('wallet_id') walletId: string,
+    @TypedBody() bodyParam: ProcessBalanceChangeRequestDto,
+  ): Promise<ProcessBalanceChangeResponseDto> {
+    const userId = this.authUser.user?.id!;
+
+    const wallet = await this.walletService.findOneByWalletId(walletId);
+    const walletBalanceChange = await this.walletService.findBalanceChangeById(
+      bodyParam.walletBalanceChangeId,
+    );
+
+    if (wallet !== null && walletBalanceChange !== null) {
+      if (wallet.id !== walletBalanceChange.walletId) {
+        throw new ForbiddenException();
+      }
+
+      if (walletBalanceChange.status !== 'IN_PROGRESS') {
+        throw new ForbiddenException();
+      }
+
+      if (wallet.ownerId === userId) {
+        const affected = await this.sequelize.transaction(
+          async (transaction) => {
+            const [affected] = await this.walletService.processBalanceChange(
+              transaction,
+              wallet,
+              walletBalanceChange,
+            );
+
+            return affected;
+          },
+        );
+
+        return { affected };
       } else {
         throw new ForbiddenException();
       }

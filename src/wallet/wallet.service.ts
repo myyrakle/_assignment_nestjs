@@ -6,6 +6,8 @@ import { makePaginationOffset } from '../utils/offset';
 import { WalletBalanceChange } from '../database/entites/WalletBalanceChange';
 import { CreateBalanceChangeDto } from './dto/create-balance-change.dto';
 import { Decimal } from 'decimal.js';
+import { ProcessBalanceChangeRequestDto } from './dto/process-balance-change-request.dto';
+import { Transaction } from 'sequelize';
 
 @Injectable()
 export class WalletService {
@@ -47,10 +49,52 @@ export class WalletService {
     });
   }
 
+  async processBalanceChange(
+    transaction: Transaction,
+    wallet: Wallet,
+    walletBalanceChange: WalletBalanceChange,
+  ) {
+    let amount = new Decimal(walletBalanceChange.changeAmount);
+
+    switch (walletBalanceChange.changeType) {
+      case 'WITHDRAW':
+        amount = amount.negated();
+        break;
+      case 'DEPOSIT':
+        break;
+    }
+
+    const beforeBalance = new Decimal(wallet?.balance!);
+    const afterBalance = beforeBalance.plus(amount);
+
+    await Wallet.update(
+      { afterBalance: afterBalance.toString() },
+      { where: { id: wallet.id }, transaction },
+    );
+
+    return await WalletBalanceChange.update(
+      {
+        beforeBalance: beforeBalance.toString(),
+        afterBalance: afterBalance.toString(),
+        status: 'DONE',
+      },
+      {
+        where: {
+          id: walletBalanceChange.id,
+        },
+        transaction,
+      },
+    );
+  }
+
   async findOneByWalletId(walletId: string) {
     return await Wallet.findOne({
       where: { id: walletId },
     });
+  }
+
+  async findBalanceChangeById(id: string) {
+    return await WalletBalanceChange.findOne({ where: { id } });
   }
 
   async findChangeListByWalletId(
