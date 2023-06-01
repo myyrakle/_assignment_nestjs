@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateWalletDto } from './dto/create-wallet.dto';
 import { Wallet } from '../database/entites/Wallet';
 import { BalanceChangeListRequestDto } from './dto/balance-change-list-request-dto';
@@ -6,8 +6,8 @@ import { makePaginationOffset } from '../utils/offset';
 import { WalletBalanceChange } from '../database/entites/WalletBalanceChange';
 import { CreateBalanceChangeDto } from './dto/create-balance-change.dto';
 import { Decimal } from 'decimal.js';
-import { ProcessBalanceChangeRequestDto } from './dto/process-balance-change-request.dto';
 import { Transaction } from 'sequelize';
+import { ErrorCodes } from '../utils/error_code';
 
 @Injectable()
 export class WalletService {
@@ -66,6 +66,10 @@ export class WalletService {
 
     const beforeBalance = new Decimal(wallet?.balance!);
     const afterBalance = beforeBalance.plus(amount);
+
+    if (afterBalance.isNegative()) {
+      throw new BadRequestException(ErrorCodes.BALANCE_NOT_ENOUGH);
+    }
 
     await Wallet.update(
       { afterBalance: afterBalance.toString() },

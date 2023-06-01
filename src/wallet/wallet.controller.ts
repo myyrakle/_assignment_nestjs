@@ -10,6 +10,7 @@ import {
   UnauthorizedException,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { WalletService } from './wallet.service';
 import { TypedRoute, TypedBody, TypedQuery } from '@nestia/core';
@@ -25,6 +26,8 @@ import { WalletBalanceChangeDto } from './dto/wallet-balance-change-dto';
 import { ProcessBalanceChangeRequestDto } from './dto/process-balance-change-request.dto';
 import { Sequelize } from 'sequelize-typescript';
 import { ProcessBalanceChangeResponseDto } from './dto/process-balance-change-response.dto';
+import Decimal from 'decimal.js';
+import { ErrorCodes } from '../utils/error_code';
 
 @UseAuth()
 @Controller('wallet')
@@ -44,6 +47,16 @@ export class WalletController {
   async create(
     @TypedBody() createWalletDto: CreateWalletDto,
   ): Promise<WalletDto> {
+    const decimal = new Decimal(createWalletDto.balance);
+    if (decimal.isNaN()) {
+      throw new BadRequestException(ErrorCodes.BALANCE_MUST_BE_VALID_NUMBER);
+    }
+    if (decimal.isPositive() === false) {
+      throw new BadRequestException(
+        ErrorCodes.INITIAL_BALANCE_MUST_BE_POSITIVE,
+      );
+    }
+
     let userId = this.authUser.user?.id!;
 
     let wallet = await this.walletService.create(userId, createWalletDto);
@@ -90,6 +103,15 @@ export class WalletController {
     const wallet = await this.walletService.findOneByWalletId(walletId);
 
     if (wallet !== null) {
+      if (bodyParam.changeType == 'WITHDRAW') {
+        const walletBalance = new Decimal(wallet.balance);
+        const changeAmount = new Decimal(bodyParam.amount);
+
+        if (walletBalance.lessThan(changeAmount)) {
+          throw new BadRequestException(ErrorCodes.BALANCE_NOT_ENOUGH);
+        }
+      }
+
       if (wallet.ownerId === userId) {
         const balanceChange = await this.walletService.createBalanceChange(
           walletId,
