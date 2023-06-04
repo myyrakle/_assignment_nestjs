@@ -6,6 +6,8 @@ import { DatabaseModule } from '../database/database.module';
 import { UserModule } from './user.module';
 import { AppController } from '../app.controller';
 import { AppService } from '../app.service';
+import { REQUEST } from '@nestjs/core';
+import { Request } from '@nestjs/common';
 
 describe('UserController', () => {
   let controller: UserController;
