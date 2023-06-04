@@ -147,6 +147,7 @@ export class WalletController {
       if (wallet.id !== walletBalanceChange.walletId) {
         throw new ForbiddenException();
       }
+      
 
       if (walletBalanceChange.status !== 'IN_PROGRESS') {
         throw new ForbiddenException();
