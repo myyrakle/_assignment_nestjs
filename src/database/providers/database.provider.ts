@@ -19,7 +19,7 @@ export const databaseProviders = [
       sequelize.addModels([User, Wallet, WalletBalanceChange, RefreshToken]);
 
       if (process.env.NODE_ENV != 'production') {
-        await sequelize.sync();
+        //await sequelize.sync();
       }
 
       return sequelize;
